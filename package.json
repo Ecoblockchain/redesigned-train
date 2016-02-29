@@ -9,7 +9,6 @@
   "author": "Michał Sidor (Michcioperz)",
   "license": "ISC",
   "dependencies": {
-    "aframe-core": "^0.1.5",
     "express": "^4.13.4",
     "socket.io": "^1.4.5",
     "twitter": "^1.2.5"
