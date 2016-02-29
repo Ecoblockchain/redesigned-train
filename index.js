@@ -15,7 +15,7 @@ var client = new Twitter({
 });
 
 //client.stream('user', {}, (stream) => { //this uses your timeline instead but needs consumer_key and other stuff up above
-client.stream('statuses/filter', {track: '#gamedev'}, (stream) => {
+client.stream('statuses/filter', {track: process.env.VR_TRACK || '#gamedev'}, (stream) => {
   stream.on('data', (tweet) => {
     console.log(tweet);
     io.emit('tweet', tweet);
