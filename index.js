@@ -17,8 +17,14 @@ var client = new Twitter({
 //client.stream('user', {}, (stream) => { //this uses your timeline instead but needs consumer_key and other stuff up above
 client.stream('statuses/filter', {track: process.env.VR_TRACK || '#gamedev'}, (stream) => {
   stream.on('data', (tweet) => {
+    if (!("user" in tweet || "entities" in tweet)) return;
     console.log(tweet);
-    io.emit('tweet', tweet);
+    var payload = {};
+    payload.source = "twitter";
+    payload.main_image = tweet.user.profile_image_url;
+    payload.media = [];
+    if ("media" in tweet.entities) for (var media of tweet.entities.media) payload.media.push(media.media_url);
+    io.emit('tweet', payload);
   });
   stream.on('error', (error) => {
     throw error;

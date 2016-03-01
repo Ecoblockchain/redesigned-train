@@ -3,45 +3,42 @@
   <head>
     <meta charset="utf-8">
     <title>Twitter VR</title>
-    <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
     <script src="https://aframe.io/releases/latest/aframe.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
-    <a-scene>
+    <a-scene id="the-scene">
       <a-camera cursor-visible="true" cursor-color="black" position="0 1.8 0"></a-camera>
       <a-sky></a-sky>
       <a-light type="ambient"></a-light>
     </a-scene>
     <script>
-      $(document).ready(function() {
+      document.addEventListener("DOMContentLoaded", function() {
+        var riseAnimation = document.createElement("a-animation");
+        riseAnimation.setAttribute("attribute", "position.y");
+        riseAnimation.setAttribute("dur", "10000");
+        riseAnimation.setAttribute("to", "20");
+        var scene = document.getElementById("the-scene");
         var socket = io();
         socket.on('tweet', function (tweet) {
           var angle = Math.floor(Math.random()*360);
           var dist = 5+Math.random()*3;
           var offset = 1;
-          $("<a-plane></a-plane>")
-            .attr('src',tweet.user.profile_image_url_https)
-            .attr("position",""+Math.sin(angle/360.0*2*Math.PI)*dist+" "+(0-dist)+" "+Math.cos(angle/360.0*2*Math.PI)*dist)
-            .attr("rotation","0 "+(angle-180)+" 0")
-            .append(
-              $("<a-animation></a-animation>")
-                .attr("attribute","position.y")
-                .attr("dur","20000")
-                .attr("to","30")
-            ).appendTo($("a-scene"));
-          if ("media" in tweet.entities) for (var media of tweet.entities.media)
-            $("<a-plane></a-plane>")
-              .attr("position",""+Math.sin((angle)/360.0*2*Math.PI)*dist+" "+((offset++)*-4-dist)+" "+Math.cos((angle)/360.0*2*Math.PI)*dist)
-              .attr("rotation","0 "+(angle-180)+" 0")
-              .attr("scale", "3 3 3")
-              .attr("src",media.media_url_https)
-              .append(
-                $("<a-animation></a-animation>")
-                  .attr("attribute","position.y")
-                  .attr("dur","20000")
-                  .attr("to","30")
-              ).appendTo($("a-scene"));
+          var main_plane = document.createElement("a-plane");
+          main_plane.setAttribute("src", tweet.main_image);
+          main_plane.setAttribute("rotation", "0 "+(angle-180)+" 0");
+          main_plane.setAttribute("position", ""+Math.sin(angle/360.0*2*Math.PI)*dist+" "+(0-dist)+" "+Math.cos(angle/360.0*2*Math.PI)*dist);
+          main_plane.appendChild(riseAnimation.cloneNode(true));
+          scene.appendChild(main_plane);
+          for (var media of tweet.media) {
+            var media_plane = document.createElement("a-plane");
+            media_plane.setAttribute("position", ""+Math.sin((angle)/360.0*2*Math.PI)*dist+" "+((offset++)*-4-dist)+" "+Math.cos((angle)/360.0*2*Math.PI)*dist);
+            media_plane.setAttribute("rotation", "0 "+(angle-180)+" 0");
+            media_plane.setAttribute("scale", "3 3 3");
+            media_plane.setAttribute("src", media);
+            media_plane.appendChild(riseAnimation.cloneNode(true));
+            scene.appendChild(media_plane);
+          }
         });
       });
     </script>
