@@ -16,8 +16,8 @@
       document.addEventListener("DOMContentLoaded", function() {
         var riseAnimation = document.createElement("a-animation");
         riseAnimation.setAttribute("attribute", "position.y");
-        riseAnimation.setAttribute("dur", "10000");
-        riseAnimation.setAttribute("to", "20");
+        riseAnimation.setAttribute("dur", "15000");
+        riseAnimation.setAttribute("to", "40");
         var scene = document.getElementById("the-scene");
         var socket = io();
         socket.on('tweet', function (tweet) {
@@ -26,17 +26,25 @@
           var offset = 1;
           var main_plane = document.createElement("a-plane");
           main_plane.setAttribute("src", tweet.main_image);
-          main_plane.setAttribute("rotation", "0 "+(angle-180)+" 0");
-          main_plane.setAttribute("position", ""+Math.sin(angle/360.0*2*Math.PI)*dist+" "+(0-dist)+" "+Math.cos(angle/360.0*2*Math.PI)*dist);
-          main_plane.appendChild(riseAnimation.cloneNode(true));
+          main_plane.setAttribute("position", ""+Math.sin(angle/360.0*2*Math.PI)*dist+" "+(-10-dist)+" "+Math.cos(angle/360.0*2*Math.PI)*dist);
+          main_plane.setAttribute("look-at", "a-camera");
+          var main_anim = riseAnimation.cloneNode(true);
+          main_anim.addEventListener("animationend", function (e) {
+            e.target.parentNode.remove();
+          });
+          main_plane.appendChild(main_anim);
           scene.appendChild(main_plane);
           for (var media of tweet.media) {
             var media_plane = document.createElement("a-plane");
-            media_plane.setAttribute("position", ""+Math.sin((angle)/360.0*2*Math.PI)*dist+" "+((offset++)*-4-dist)+" "+Math.cos((angle)/360.0*2*Math.PI)*dist);
-            media_plane.setAttribute("rotation", "0 "+(angle-180)+" 0");
+            media_plane.setAttribute("position", ""+Math.sin((angle)/360.0*2*Math.PI)*dist+" "+((offset++)*-4-dist-10)+" "+Math.cos((angle)/360.0*2*Math.PI)*dist);
             media_plane.setAttribute("scale", "3 3 3");
             media_plane.setAttribute("src", media);
-            media_plane.appendChild(riseAnimation.cloneNode(true));
+            media_plane.setAttribute("look-at", "a-camera");
+            var media_anim = riseAnimation.cloneNode(true);
+            media_anim.addEventListener("animationend", function (e) {
+              e.target.parentNode.remove();
+            });
+            media_plane.appendChild(media_anim);
             scene.appendChild(media_plane);
           }
         });
